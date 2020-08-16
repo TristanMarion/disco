@@ -1,44 +1,24 @@
 <template>
   <div>
-    <!-- <button @click="increment">Click me</button>
-    <button @click="increment2">Click me 2</button>
-    {{ counter }}
-    {{ counter2 }} -->
-
-    {{ counter }}
-
-    <ul>
-      <li
-        is="habitat"
-        v-for="(habitat, index) in habitats"
-        :key="habitat.name"
-        :index="index"
-      ></li>
-    </ul>
-
-    <button @click="unlock">Unlock</button>
-
-    <!-- {{ habitats }} -->
-    <!-- <div class="bar-container">
+    {{ name }} {{ duration }}
+    <div class="bar-container">
       <div class="bar">
         <transition name="grow">
-          <div class="progress" v-if="show"></div>
+          <div class="progress" v-if="show" :style="cssVars"></div>
         </transition>
         <transition name="scale" @after-enter="afterEnterScale">
           <div class="progress-scale" v-if="showScale"></div>
         </transition>
       </div>
     </div>
-    {{ showScale }} -->
   </div>
 </template>
 
 <script lang="ts">
-import HabitatVue from "@/components/Habitat.vue";
-
-export default {
-  components: {
-    habitat: HabitatVue
+import Vue from "vue";
+export default Vue.extend({
+  props: {
+    name: String
   },
   data: function(): {
     show: boolean;
@@ -54,41 +34,37 @@ export default {
   mounted() {
     this.show = true;
     this.interval = setInterval(() => {
-      // this.increment();
+      this.increment();
       this.show = false;
       this.showScale = true;
       setTimeout(() => (this.show = true), 0);
-    }, 10000);
-  },
-  computed: {
-    habitats() {
-      return this.$store.getters.habitats;
-    },
-    counter() {
-      return this.$store.state.count;
-    }
-    // counter2() {
-    //   return this.$store.getters.counter(0, "mouton");
-    // }
+    }, this.duration);
   },
   methods: {
-    // increment() {
-    //   this.$store.commit("increment", { idx: 0, name: "cochon" });
-    // },
-    // increment2() {
-    //   this.$store.commit("increment", { idx: 0, name: "mouton" });
-    // },
-    // afterEnterScale() {
-    //   this.showScale = false;
-    // },
-    unlock() {
-      this.$store.commit("unlockHabitat");
+    increment() {
+      this.$store.commit("increment", { idx: 0, name: "cochon" });
+    },
+    increment2() {
+      this.$store.commit("increment", { idx: 0, name: "mouton" });
+    },
+    afterEnterScale() {
+      this.showScale = false;
+    }
+  },
+  computed: {
+    duration() {
+      return this.$store.getters.animalDuration(this.name);
+    },
+    cssVars() {
+      return {
+        "--duration": this.duration / 1000 + "s"
+      };
     }
   }
-};
+});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 div.bar {
   border-top: 1px solid black;
   border-left: 1px solid black;
@@ -128,7 +104,7 @@ div.bar {
 }
 
 .grow-enter-active {
-  animation: 10s grow linear;
+  animation: var(--duration) grow linear;
 }
 
 .scale-enter-active {
