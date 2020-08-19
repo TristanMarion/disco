@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ name }} {{ duration }}
+    {{ name | capitalize }} - Level {{ level }} - {{ count }} - {{ gain }} c/s
     <div class="bar-container">
       <div class="bar">
         <transition name="grow">
@@ -16,9 +16,17 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { ANIMALS, Animal } from "@/models/animals";
+
 export default Vue.extend({
   props: {
-    name: String
+    name: {
+      type: String,
+      required: true,
+      validator: function(value: string) {
+        return ANIMALS.includes(value as Animal);
+      }
+    }
   },
   data: function(): {
     show: boolean;
@@ -44,21 +52,41 @@ export default Vue.extend({
     increment() {
       this.$store.commit("increment", { idx: 0, name: "cochon" });
     },
-    increment2() {
-      this.$store.commit("increment", { idx: 0, name: "mouton" });
-    },
     afterEnterScale() {
       this.showScale = false;
     }
   },
   computed: {
-    duration() {
-      return this.$store.getters.animalDuration(this.name);
+    duration(): number {
+      return this.$store.getters.animalDuration(0, this.name);
     },
-    cssVars() {
+    count(): number {
+      return this.$store.getters.animalCount(0, this.name);
+    },
+    level(): number | string {
+      const level = this.$store.getters.animalLevel(0, this.name);
+      return level < 5 ? level + 1 : "Max";
+    },
+    gain(): number {
+      return this.$store.getters.animalGain(0, this.name);
+    },
+    cssVars(): { "--duration": string } {
       return {
         "--duration": this.duration / 1000 + "s"
       };
+    }
+  },
+  watch: {
+    duration: function() {
+      clearInterval(this.interval);
+      this.show = false;
+      setTimeout(() => (this.show = true), 0);
+      this.interval = setInterval(() => {
+        this.increment();
+        this.show = false;
+        this.showScale = true;
+        setTimeout(() => (this.show = true), 0);
+      }, this.duration);
     }
   }
 });

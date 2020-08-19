@@ -2,19 +2,18 @@ import { Habitat } from "@/models/habitat";
 
 const habitats: Habitat[] = [
   {
-    name: "Farm",
-    animals: new Map([
-      ["cochon", 0],
-      ["vache", 0],
-      ["mouton", 0],
-    ]),
-  },
-  {
-    name: "Outback",
-    animals: new Map([
-      ["kangoo", 0],
-      ["koala", 0],
-    ]),
+    name: "farm",
+    price: 100,
+    priceIncrement: 10,
+    maxPrice: 2000,
+    animals: {
+      sheep: 0,
+      pig: 1,
+      rabbit: 0,
+      horse: 0,
+      cow: 0,
+      unicorn: 0,
+    },
   },
 ];
 
