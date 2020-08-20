@@ -98,7 +98,9 @@ export default Vue.extend({
     <div class="first-column">
       <img :src="require(`@/assets/images/animals/${name}.png`)" alt="" />
       <div class="level">Level {{ level }}</div>
-      <div class="count">x{{ count }}</div>
+      <transition name="fade" mode="out-in">
+        <div :key="count" class="count">x{{ count }}</div>
+      </transition>
     </div>
     <div class="second-column">
       <div class="name">{{ name | uppercase }}</div>
@@ -289,5 +291,18 @@ div.bar {
     transform: scale(1.1, 2);
     opacity: 0;
   }
+}
+
+.fade-enter-active {
+  transition: all 0.5s;
+}
+
+.fade-leave-active {
+  transition: all 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

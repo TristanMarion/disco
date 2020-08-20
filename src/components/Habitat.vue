@@ -42,24 +42,38 @@ export default Vue.extend({
     </div>
 
     <div class="pens-container">
-      <div class="pens">
+      <transition-group class="pens" name="pens-list" tag="div">
         <Pen
+          class="pen"
           v-for="animal in animals"
           :key="animal"
           :name="animal"
           :colors="cssVars"
           :habitatIndex="index"
         ></Pen>
-      </div>
+      </transition-group>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.pens-list-enter-active {
+  transition: all 1s;
+}
+
+.pens-list-enter, .pens-list-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
 .habitat {
   display: flex;
   justify-content: center;
   padding: 0 8px;
+
+  .pen {
+    transition: all 1s;
+  }
 
   .save {
     display: flex;
