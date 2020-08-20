@@ -6,6 +6,7 @@ export interface Habitat {
   priceIncrement: number;
   maxPrice: number;
   animals: { [key in Animal]?: number };
+  colors: string[];
 }
 
-export type HabitatName = "farm";
+export type HabitatName = "farm" | "outback";

@@ -1,19 +1,3 @@
-<template>
-  <div>
-    {{ name | capitalize }} - Level {{ level }} - {{ count }} - {{ gain }} c/s
-    <div class="bar-container">
-      <div class="bar">
-        <transition name="grow">
-          <div class="progress" v-if="show" :style="cssVars"></div>
-        </transition>
-        <transition name="scale" @after-enter="afterEnterScale">
-          <div class="progress-scale" v-if="showScale"></div>
-        </transition>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script lang="ts">
 import Vue from "vue";
 import { ANIMALS, Animal } from "@/models/animals";
@@ -26,6 +10,14 @@ export default Vue.extend({
       validator: function(value: string) {
         return ANIMALS.includes(value as Animal);
       }
+    },
+    colors: {
+      type: Object,
+      required: true
+    },
+    habitatIndex: {
+      type: Number,
+      required: true
     }
   },
   data: function(): {
@@ -50,7 +42,10 @@ export default Vue.extend({
   },
   methods: {
     increment() {
-      this.$store.commit("increment", { idx: 0, name: "cochon" });
+      this.$store.commit("increment", {
+        idx: this.habitatIndex,
+        name: this.name
+      });
     },
     afterEnterScale() {
       this.showScale = false;
@@ -58,17 +53,23 @@ export default Vue.extend({
   },
   computed: {
     duration(): number {
-      return this.$store.getters.animalDuration(0, this.name);
+      return this.$store.getters.animalDuration(this.habitatIndex, this.name);
     },
     count(): number {
-      return this.$store.getters.animalCount(0, this.name);
+      return Math.min(
+        this.$store.getters.animalCount(this.habitatIndex, this.name),
+        25
+      );
     },
     level(): number | string {
-      const level = this.$store.getters.animalLevel(0, this.name);
+      const level = this.$store.getters.animalLevel(
+        this.habitatIndex,
+        this.name
+      );
       return level < 5 ? level + 1 : "Max";
     },
     gain(): number {
-      return this.$store.getters.animalGain(0, this.name);
+      return this.$store.getters.animalGain(this.habitatIndex, this.name);
     },
     cssVars(): { "--duration": string } {
       return {
@@ -92,12 +93,139 @@ export default Vue.extend({
 });
 </script>
 
+<template>
+  <div class="pen" :style="colors">
+    <div class="first-column">
+      <img :src="require(`@/assets/images/animals/${name}.png`)" alt="" />
+      <div class="level">Level {{ level }}</div>
+      <div class="count">x{{ count }}</div>
+    </div>
+    <div class="second-column">
+      <div class="name">{{ name | uppercase }}</div>
+      <div class="bar-container">
+        <div class="bar">
+          <transition name="grow">
+            <div class="progress" v-if="show" :style="cssVars"></div>
+          </transition>
+          <transition name="scale" @after-enter="afterEnterScale">
+            <div class="progress-scale" v-if="showScale"></div>
+          </transition>
+        </div>
+      </div>
+      <div class="gain">
+        <p>
+          {{ gain }}
+        </p>
+        <p class="text">{{ "coins / min" | uppercase }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+
 <style lang="scss" scoped>
+.pen {
+  color: white;
+  display: flex;
+  padding: 16px;
+  background: var(--color1);
+  margin: 8px;
+  border: 2px solid var(--color4);
+  position: relative;
+  border-radius: 6px;
+
+  &:after {
+    background: none;
+    border: 2px solid var(--color3);
+    border-radius: 8px;
+    content: "";
+    display: block;
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    pointer-events: none;
+  }
+
+  .first-column {
+    position: relative;
+    background-image: linear-gradient(
+      to bottom,
+      var(--color4),
+      var(--color4) 50%,
+      var(--color3) 50%
+    );
+    padding: 0px 8px 4px 8px;
+    border: 1px solid var(--color5);
+    margin-right: 8px;
+    border-radius: 8px;
+
+    &:after {
+      background: none;
+      border: 1px solid var(--color8);
+      border-radius: 8px;
+      content: "";
+      display: block;
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      pointer-events: none;
+    }
+
+    img {
+      height: 64px;
+      margin-top: -8px;
+    }
+
+    .count {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+    }
+
+    .level {
+      text-align: center;
+    }
+  }
+
+  .second-column {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      font-size: 1.5rem;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .gain {
+      background: #00000044;
+      width: 100%;
+      text-align: center;
+      font-size: 1.25rem;
+      flex: 1;
+      padding: 2px;
+      margin: 4px 0;
+      border: 1px solid #00000088;
+      border-radius: 8px;
+      color: #ffdd08;
+      box-sizing: border-box;
+
+      .text {
+        line-height: 0.5rem;
+        color: #eddc8c;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
 div.bar {
-  border-top: 1px solid black;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-bottom: 1px solid #003137;
+  border: 1px solid #00000088;
   width: 100px;
   height: 10px;
   border-radius: 10px;

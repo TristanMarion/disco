@@ -2,21 +2,17 @@
   <div>
     {{ counter }}
 
-    <ul>
-      <li
-        is="Habitat"
-        v-for="(habitat, index) in habitats"
-        :key="habitat.name"
-        :index="index"
-      ></li>
-    </ul>
-
-    <button @click="save">Save</button>
+    <Habitat
+      v-for="(habitat, index) in habitats"
+      :key="habitat.name"
+      :index="index"
+    ></Habitat>
 
     <modal
       v-show="isModalVisible"
       @close="closeModal"
       :animal="savedAnimals[0]"
+      :showProp="isModalVisible"
     />
   </div>
 </template>
@@ -57,17 +53,16 @@ export default Vue.extend({
     },
     closeModal() {
       this.isModalVisible = false;
-      this.$store.commit("saveSavedAnimals", {
-        savedAnimals:
-          this.savedAnimals.length > 1 ? this.savedAnimals.slice(1) : []
-      });
-    },
-    save() {
-      this.$store.dispatch("saveAnimals", { idx: 0 });
+      setTimeout(() => {
+        this.$store.commit("saveSavedAnimals", {
+          savedAnimals:
+            this.savedAnimals.length > 1 ? this.savedAnimals.slice(1) : []
+        });
+      }, 0);
     }
   },
   watch: {
-    savedAnimals: function(newValue, oldValue) {
+    savedAnimals: function(newValue) {
       if (newValue.length > 0) this.showModal();
     }
   }

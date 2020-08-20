@@ -4,6 +4,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import animalsStats from "./animals-stats";
 import habitats from "./habitats";
+import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
 
@@ -16,7 +17,7 @@ const numberOfSavedAnimalsProbabilitiesArray = [
 
 export default new Vuex.Store({
   state: {
-    habitats: Array<Habitat>(habitats[0]),
+    habitats: Array<Habitat>(habitats[0], habitats[1]),
     count: 0,
     savedAnimals: [] as Animal[],
     currentHabitatIndex: 0,
@@ -35,9 +36,13 @@ export default new Vuex.Store({
     saveSavedAnimals(state, { savedAnimals }: { savedAnimals: Animal[] }) {
       state.savedAnimals = savedAnimals;
     },
+    updateCurrentHabitatIndex(state, { idx }: { idx: number }) {
+      state.currentHabitatIndex = idx;
+    },
   },
   actions: {
     saveAnimals(context, { idx }) {
+      this.commit("updateCurrentHabitatIndex", { idx });
       const numberOfSavedAnimals =
         numberOfSavedAnimalsProbabilitiesArray[
           Math.floor(
@@ -102,5 +107,29 @@ export default new Vuex.Store({
       return Math.floor(Reflect.get(state.habitats[idx].animals, name) / 5);
     },
     savedAnimals: (state) => state.savedAnimals,
+    currentHabitatIndex: (state) => state.currentHabitatIndex,
+    habitatColors: (state) => (idx: number) => {
+      const [
+        color1,
+        color2,
+        color3,
+        color4,
+        color5,
+        color6,
+        color7,
+        color8,
+      ] = habitats[idx].colors;
+      return {
+        "--color1": color1,
+        "--color2": color2,
+        "--color3": color3,
+        "--color4": color4,
+        "--color5": color5,
+        "--color6": color6,
+        "--color7": color7,
+        "--color8": color8,
+      };
+    },
   },
+  plugins: [createPersistedState()],
 });
